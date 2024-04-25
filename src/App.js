@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function App() {
   // Estado para armazenar a lista de compras
@@ -16,6 +16,40 @@ export default function App() {
     }
   };
 
+  const saveLocalStorage = () => {
+    const listaString = JSON.stringify(listaCompras)
+    localStorage.setItem('lista', listaString)
+  }
+
+  /* listaCompras.length > 0 && saveLocalStorage()
+  //atualiza o localstorage em tempo real */
+
+  const getItensLocalStorage = () => {
+    //pega do localStorage
+    const listaLocalStorage = localStorage.getItem('lista')
+    //transforma de string p/ array
+    const listaArray = JSON.parse(listaLocalStorage)
+    //atualiza o estado com o arrey carregado
+    //listaArray só retorna true se tiver conteudo se não não faz o set
+    //e não atualiza o listaCompras
+    listaArray && setListaCompras(listaArray) // curto circuito
+  }
+
+  //executado uma unica vez
+  useEffect(() => {
+    getItensLocalStorage()
+  }, [])
+
+  //executado sempre que for adicionado na lista
+  useEffect(() => {
+    listaCompras.length > 0 && saveLocalStorage()
+  }, [listaCompras])
+
+  const limpaStorage = () => {
+    localStorage.removeItem('lista')
+    setListaCompras([])
+  }
+
   return (
     <div>
       <h1>Lista de Compras</h1>
@@ -26,6 +60,9 @@ export default function App() {
         placeholder="Digite um item"
       />
       <button onClick={adicionarItem}>Adicionar</button>
+      <button onClick={limpaStorage}>Limpa Storage</button>
+      {/* <button onClick={getItensLocalStorage}>Carragar LocalStorage</button>
+      <button onClick={saveLocalStorage}>Salvar</button> */}
 
       <ul>
         {listaCompras.map((compra, index) => (
